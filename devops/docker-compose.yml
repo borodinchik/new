@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+
+    database:
+            image: postgres:9.6
+            container_name: ${DOCKER_CONTAINER_PREFIX}_db
+            environment:
+                - POSTGRES_USER=${DB_USERNAME}
+                - POSTGRES_DB=${DB_DATABASE}
+                - POSTGRES_PASSWORD=${DB_PASSWORD}
+                - PGPASSWORD=${DB_PASSWORD}
+                - PGDATA=/var/lib/postgresql/data/pgdata/db
+            ports:
+                - 5432:5432
+            volumes:
+                - /opt/pgdatabase:/var/lib/postgresql/data/pgdata

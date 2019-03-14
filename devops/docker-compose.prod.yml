@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+    nginx:
+        image: ${DOCKER_IMAGE_PREFIX}_nginx:${DOCKER_TAG}
+        container_name: ${DOCKER_CONTAINER_PREFIX}_nginx
+        build:
+            context: ./../
+            dockerfile: ./devops/nginx/Dockerfile
+        volumes:
+            - ./..:/var/www/html
+            - ./../devops/certbot/www:/var/www/certbot
+            - /etc/letsencrypt:/ssl
+        links:
+            - php_fpm:php_fpm
+        ports:
+            - 80:80
+            - 443:443
+
+    php_fpm:
+        image: ${DOCKER_IMAGE_PREFIX}_php_fpm:${DOCKER_TAG}
+        container_name: ${DOCKER_CONTAINER_PREFIX}_php_fpm
+        build:
+            context: ./../
+            dockerfile: ./devops/php-fpm/Dockerfile
+        volumes:
+            - ./../storage/logs:/var/www/html/storage/logs

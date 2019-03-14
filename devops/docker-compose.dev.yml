@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+
+    nginx:
+        image: ${DOCKER_IMAGE_PREFIX}_nginx:${DOCKER_TAG}
+        container_name: ${DOCKER_CONTAINER_PREFIX}_nginx
+        build:
+            context: ./../
+            dockerfile: ./devops/nginx-dev/Dockerfile
+        volumes:
+            - ./..:/var/www/html
+        links:
+            - php_fpm:php_fpm
+        ports:
+            - 80:80
+        environment:
+            - REMOTE_DEBUG_HOST
+
+    php_fpm:
+            image: ${DOCKER_IMAGE_PREFIX}_php_fpm:${DOCKER_TAG}
+            container_name: ${DOCKER_CONTAINER_PREFIX}_php_fpm
+            build:
+                context: ./../
+                dockerfile: ./devops/php-fpm-dev/Dockerfile
+            volumes:
+                - ./..:/var/www/html
+            environment:
+                - PHP_IDE_CONFIG=serverName=server
+                - REMOTE_DEBUG_HOST
+                - REMOTE_DEBUG_PORT
+
+    docker_monitoring:
+            container_name: ${DOCKER_CONTAINER_PREFIX}_docker_monitoring
+            image: portainer/portainer:1.13.5
+            ports:
+                - 0.0.0.0:8080:9000
+            volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+            entrypoint:
+                - /portainer
+                - --admin-password
+                - ${PORTAINER_PASS}
+                - -H
+                - unix:///var/run/docker.sock
